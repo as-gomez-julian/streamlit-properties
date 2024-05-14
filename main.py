@@ -69,6 +69,10 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df.dropna(axis=1, how='all', inplace=True)
 
     df = df.groupby([ 'master_product_id', 'product_name', 'master_category_id', 'category_name','subcategory_name']).first().reset_index()
+
+    prio_columns = ['master_product_id', 'product_name', 'product_image_url','master_category_id', 'category_name','subcategory_name', 'Marca','Submarca','Peso total', 'Volumen']
+
+    df = df[prio_columns + [col for col in df.columns if col not in prio_columns]]
     
     return df
 
@@ -86,7 +90,13 @@ def run_query(query):
     rows_raw = query_job.result()
     # Convert to list of dicts. Required for st.cache_data to hash the return value.
     #rows = [dict(row) for row in rows_raw]
-    return rows_raw.to_dataframe()
+    local_df = rows_raw.to_dataframe()
+    local_df = local_df.groupby([ 'master_product_id', 'product_name', 'master_category_id', 'category_name','subcategory_name']).first().reset_index()
+
+    prio_columns = ['master_product_id', 'product_name', 'product_image_url','master_category_id', 'category_name','subcategory_name', 'Marca','Submarca','Peso total', 'Volumen']
+
+    local_df = local_df[prio_columns + [col for col in local_df.columns if col not in prio_columns]]
+    return local_df
 
 df = run_query(MAIN_QUERY.replace('--commas', '"""'))
 df_inspect = df.copy()
@@ -94,17 +104,17 @@ df_inspect = df.copy()
 
 
 
-st.title("Product Properties Dataframe (Busqueda profunda)")
+# st.title("Product Properties Dataframe (Busqueda profunda)")
 
-#with st.expander("Abrir busqueda profunda"):
-st.dataframe(filter_dataframe(df_inspect))
+# #with st.expander("Abrir busqueda profunda"):
+# st.dataframe(filter_dataframe(df_inspect))
 
 # st.write(
 #     """
 #     """
 # )
 #st.dataframe(filter_dataframe(df))
-st.title("Product Properties Dataframe (General - Usa la sidebar)")
+st.title("Product Properties Dataframe (General)")
 
 dynamic_filters = DynamicFilters(df=df, filters=['category_name','subcategory_name', 'product_name'])
 
