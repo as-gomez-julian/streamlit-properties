@@ -20,7 +20,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
     with modification_container:
         to_filter_columns = st.multiselect("Filter dataframe on", df.columns)
-        for column in to_filter_columns:
+        for column in [ 'product_name', 'category_name','subcategory_name'] + to_filter_columns:
             left, right = st.columns((1, 20))
             # Treat columns with < 10 unique values as categorical
             if is_categorical_dtype(df[column]) or df[column].nunique() < 10:
@@ -80,34 +80,34 @@ client = bigquery.Client(credentials=credentials)
 
 # Perform query.
 # Uses st.cache_data to only rerun when the query changes or after 10 min.
-#@st.cache_data(ttl=600)
+@st.cache_data(ttl=3600, show_spinner=False, persist=True)
 def run_query(query):
     query_job = client.query(query)
     rows_raw = query_job.result()
     # Convert to list of dicts. Required for st.cache_data to hash the return value.
     #rows = [dict(row) for row in rows_raw]
-    return rows_raw
+    return rows_raw.to_dataframe()
 
-df = run_query(MAIN_QUERY.replace('--commas', '"""')).to_dataframe()
+df = run_query(MAIN_QUERY.replace('--commas', '"""'))
 df_inspect = df.copy()
 
 
-st.title("Product Properties Dataframe (General)")
 
-dynamic_filters = DynamicFilters(df=df, filters=['category_name','subcategory_name', 'product_name'])
-
-dynamic_filters.display_filters(location='sidebar')
-
-dynamic_filters.display_df()
 
 st.title("Product Properties Dataframe (Busqueda profunda)")
 
-with st.expander("Abrir busqueda profunda"):
-    st.dataframe(filter_dataframe(df_inspect))
+#with st.expander("Abrir busqueda profunda"):
+st.dataframe(filter_dataframe(df_inspect))
 
 # st.write(
 #     """
 #     """
 # )
 #st.dataframe(filter_dataframe(df))
+st.title("Product Properties Dataframe (General - Usa la sidebar)")
 
+dynamic_filters = DynamicFilters(df=df, filters=['category_name','subcategory_name', 'product_name'])
+
+dynamic_filters.display_filters(location='sidebar')
+
+dynamic_filters.display_df()
