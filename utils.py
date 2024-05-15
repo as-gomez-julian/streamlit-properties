@@ -25,6 +25,7 @@ EXECUTE IMMEDIATE FORMAT(
   INNER JOIN `master_catalogs.master_categories` AS cat 
   ON pp.master_category_id = cat.master_category_id
   WHERE value_string IS NOT NULL
+    AND cat.category_name IN ('Atún, Pescados y Mariscos en Lata', 'Aceites de cocina y vegetal', 'Detergente', 'Crema corporal y de manos', 'Café y Té')
   UNION ALL 
   SELECT DISTINCT
   product_property_id, 
@@ -48,6 +49,7 @@ EXECUTE IMMEDIATE FORMAT(
   INNER JOIN `master_catalogs.master_categories` AS cat 
   ON pp.master_category_id = cat.master_category_id
   WHERE value_numeric IS NOT NULL
+    AND cat.category_name IN ('Atún, Pescados y Mariscos en Lata', 'Aceites de cocina y vegetal', 'Detergente', 'Crema corporal y de manos', 'Café y Té')
   UNION ALL
 --   SELECT DISTINCT
 --   product_property_id, 
@@ -91,6 +93,7 @@ EXECUTE IMMEDIATE FORMAT(
   INNER JOIN `master_catalogs.master_categories` AS cat 
   ON pp.master_category_id = cat.master_category_id
   WHERE value_bool IS NOT NULL
+    AND cat.category_name IN ('Atún, Pescados y Mariscos en Lata', 'Aceites de cocina y vegetal', 'Detergente', 'Crema corporal y de manos', 'Café y Té')
    )
   PIVOT(STRING_AGG(value) FOR property_name IN %s)
   ;
