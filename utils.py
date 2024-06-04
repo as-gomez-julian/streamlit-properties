@@ -79,6 +79,7 @@ EXECUTE IMMEDIATE FORMAT(
   WHERE value_bool IS NOT NULL
     AND cat.category_name IN ('Atún, Pescados y Mariscos en Lata', 'Aceites de cocina y vegetal', 'Detergente', 'Crema corporal y de manos', 'Café y Té')
       )
+      WHERE DATE(register_at) > DATE('2024-05-24')
       QUALIFY ROW_NUMBER() OVER(PARTITION BY  master_product_id,  product_property_id ORDER BY register_at DESC) = 1
    )
   PIVOT(STRING_AGG(value) FOR property_name IN %s)
